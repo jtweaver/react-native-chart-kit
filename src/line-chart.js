@@ -1,6 +1,6 @@
 import React from 'react'
 import {View} from 'react-native'
-import {Svg, Circle, Polygon, Polyline, Path, Rect, G} from 'react-native-svg'
+import { Svg, Circle, Polygon, Polyline, Path, Rect, G, Text } from 'react-native-svg'
 import AbstractChart from './abstract-chart'
 
 class LineChart extends AbstractChart {
@@ -32,7 +32,7 @@ class LineChart extends AbstractChart {
         const cx =
           paddingRight + (i * (width - paddingRight)) / dataset.data.length
         const cy =
-          (baseHeight - this.calcHeight(x, datas, height)) / 4 * 3 + paddingTop
+          (baseHeight - this.calcHeight(x, datas, height)) / 5 * 4 + paddingTop
         const onPress = () => {
           if (!onDataPointClick) {
             return
@@ -46,25 +46,41 @@ class LineChart extends AbstractChart {
           })
         }
 
-        output.push(
-          <Circle
-            key={Math.random()}
-            cx={cx}
-            cy={cy}
-            r="4"
-            fill={this.getColor(dataset, 0.9)}
-            onPress={onPress}
-          />,
-          <Circle
-            key={Math.random()}
-            cx={cx}
-            cy={cy}
-            r="12"
-            fill="#fff"
-            fillOpacity={0}
-            onPress={onPress}
-          />
-        )
+        if (i === dataset.data.length - 1) {
+          output.push(
+            <Circle
+              key={Math.random()}
+              cx={cx}
+              cy={cy}
+              r="8"
+              fill="#fff"
+              fillOpacity={1}
+              onPress={onPress}
+              // style={{ zIndex: -1 }}
+            />,
+            <Circle
+              key={Math.random()}
+              cx={cx}
+              cy={cy}
+              r="6"
+              fill="#3bc6f4"
+              fillOpacity={1}
+              onPress={onPress}
+              // style={{ zIndex: -1 }}
+            />,
+            <Text
+              key={Math.random()}
+              x={cx + 15}
+              // textAnchor="end"
+              y={cy + 3}
+              fontSize={12}
+              fill={this.props.chartConfig.color(0.5)}
+              fontFamily="grover"
+            >
+              {x}%
+            </Text>
+          )
+        }
       })
     })
     return output
@@ -152,7 +168,7 @@ class LineChart extends AbstractChart {
     const baseHeight = this.calcBaseHeight(datas, height)
     const y = i => {
       const yHeight = this.calcHeight(dataset.data[i], datas, height)
-      return Math.floor((baseHeight - yHeight) / 4 * 3 + paddingTop)
+      return Math.floor((baseHeight - yHeight) / 5 * 4 + paddingTop)
     }
 
     return [`M${x(0)},${y(0)}`]
@@ -211,7 +227,7 @@ class LineChart extends AbstractChart {
   }
 
   render() {
-    const paddingTop = 16
+    const paddingTop = 8
     const paddingRight = 64
     const {
       width,
@@ -236,7 +252,7 @@ class LineChart extends AbstractChart {
     const datas = this.getDatas(data.datasets)
     return (
       <View style={style}>
-        <Svg height={height} width={width}>
+        <Svg height={height} width={width + 40}>
           <G>
             {this.renderDefs({
               ...config,
@@ -253,7 +269,7 @@ class LineChart extends AbstractChart {
               {withInnerLines
                 ? this.renderHorizontalLines({
                     ...config,
-                    count: 4,
+                    count: 5,
                     paddingTop,
                     paddingRight
                   })
@@ -269,7 +285,7 @@ class LineChart extends AbstractChart {
               {withHorizontalLabels
                 ? this.renderHorizontalLabels({
                 ...config,
-                count: Math.min(...datas) === Math.max(...datas) ? 1 : 4,
+                count: Math.min(...datas) === Math.max(...datas) ? 1 : 5,
                 data: datas,
                 paddingTop,
                 paddingRight
@@ -282,7 +298,8 @@ class LineChart extends AbstractChart {
                     ...config,
                     data: data.datasets[0].data,
                     paddingTop,
-                    paddingRight
+                    count: 5,
+                    paddingRight,
                   })
                 : withOuterLines
                 ? this.renderVerticalLine({

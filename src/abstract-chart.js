@@ -41,15 +41,33 @@ class AbstractChart extends Component {
 
   renderHorizontalLines = config => {
     const {count, width, height, paddingTop, paddingRight} = config
-    return [...new Array(count)].map((_, i) => {
+    const numberOfLines = count;
+    return [...new Array(numberOfLines)].map((_, i) => {
+      if (i === 0) {
+        return null
+      }
+      if (i === numberOfLines - 1) {
+        return (
+          <Line
+            key={Math.random()}
+            x1={paddingRight}
+            y1={(height / numberOfLines) * i + paddingTop}
+            x2={width}
+            y2={(height / numberOfLines) * i + paddingTop}
+            stroke={this.props.chartConfig.lineColor(1)}
+            // strokeDasharray="5, 10"
+            strokeWidth={2}
+          />
+        )
+      }
       return (
         <Line
           key={Math.random()}
           x1={paddingRight}
-          y1={(height / 4) * i + paddingTop}
+          y1={(height / numberOfLines) * i + paddingTop}
           x2={width}
-          y2={(height / 4) * i + paddingTop}
-          stroke={this.props.chartConfig.color(0.2)}
+          y2={(height / numberOfLines) * i + paddingTop}
+          stroke={this.props.chartConfig.color(.9)}
           strokeDasharray="5, 10"
           strokeWidth={1}
         />
@@ -75,13 +93,14 @@ class AbstractChart extends Component {
 
   renderHorizontalLabels = config => {
     const {
-      count,
+      // count,
       data,
       height,
       paddingTop,
       paddingRight,
       yLabelsOffset = 12
     } = config
+    const count = 3;
     const decimalPlaces = this.props.chartConfig.decimalPlaces === undefined ? 2 : this.props.chartConfig.decimalPlaces
     const yAxisLabel = this.props.yAxisLabel || ''
 
@@ -89,12 +108,12 @@ class AbstractChart extends Component {
       let yLabel
 
       if (count === 1) {
-        yLabel = `${yAxisLabel}${data[0].toFixed(decimalPlaces)}`
+        yLabel = `${data[0].toFixed(decimalPlaces)}${yAxisLabel}`
       } else {
         const label = this.props.fromZero ?
           (this.calcScaler(data) / (count - 1)) * i + Math.min(...data, 0) :
           (this.calcScaler(data) / (count - 1)) * i + Math.min(...data)
-        yLabel = `${yAxisLabel}${label.toFixed(decimalPlaces)}`
+        yLabel = `${label.toFixed(decimalPlaces)}${yAxisLabel}`
       }
 
       return (
@@ -102,9 +121,11 @@ class AbstractChart extends Component {
           key={Math.random()}
           x={paddingRight - yLabelsOffset}
           textAnchor="end"
-          y={(height * 3) / 4 - ((height - paddingTop) / count) * i + 12}
-          fontSize={12}
+          y={(height * 3) / 4 - ((height - paddingTop) / count) * (i + (i === 0 ? -0.2 : (i === 2) ? 0.1 : 0))}
+          fontSize={11}
           fill={this.props.chartConfig.color(0.5)}
+          // fontData={chartText}
+          fontFamily="grover"
         >
           {yLabel}
         </Text>
@@ -122,7 +143,7 @@ class AbstractChart extends Component {
       horizontalOffset = 0,
       stackedBar = false
     } = config
-    const fontSize = 12
+    const fontSize = 11
     let fac = 1
     if (stackedBar) {
       fac = 0.71
@@ -133,15 +154,16 @@ class AbstractChart extends Component {
         <Text
           key={Math.random()}
           x={
-            (((width - paddingRight) / labels.length) * i +
+            (((width - paddingRight - 20) / 2) * i +
               paddingRight +
-              horizontalOffset) *
+              horizontalOffset + (i === 1 ? 10 : 0)) *
             fac
           }
-          y={(height * 3) / 4 + paddingTop + fontSize * 2}
+          y={(height * 3) / 4 + paddingTop + 5 + fontSize * 2}
           fontSize={fontSize}
           fill={this.props.chartConfig.color(0.5)}
           textAnchor="middle"
+          fontFamily="grover"
         >
           {label}
         </Text>
@@ -150,20 +172,39 @@ class AbstractChart extends Component {
   }
 
   renderVerticalLines = config => {
-    const {data, width, height, paddingTop, paddingRight} = config
-    return [...new Array(data.length)].map((_, i) => {
+    const {count, data, width, height, paddingTop, paddingRight} = config
+    const numberOfLines = count - 1;
+    return [...new Array(numberOfLines)].map((_, i) => {
+      if (i === 0) {
+        return (
+          <Line
+            key={Math.random()}
+            x1={Math.floor(
+              ((width - paddingRight) / numberOfLines) * i + paddingRight
+            )}
+            y1={0}
+            x2={Math.floor(
+              ((width - paddingRight) / numberOfLines) * i + paddingRight
+            )}
+            y2={height - height / count + paddingTop}
+            stroke={this.props.chartConfig.lineColor(1)}
+            // strokeDasharray="5, 10"
+            strokeWidth={2}
+          />
+        )
+      }
       return (
         <Line
           key={Math.random()}
           x1={Math.floor(
-            ((width - paddingRight) / data.length) * i + paddingRight
+            ((width - paddingRight) / numberOfLines) * i + paddingRight
           )}
           y1={0}
           x2={Math.floor(
-            ((width - paddingRight) / data.length) * i + paddingRight
+            ((width - paddingRight) / numberOfLines) * i + paddingRight
           )}
-          y2={height - height / 4 + paddingTop}
-          stroke={this.props.chartConfig.color(0.2)}
+          y2={height - height / count + paddingTop}
+          stroke={this.props.chartConfig.color(0.9)}
           strokeDasharray="5, 10"
           strokeWidth={1}
         />
